@@ -23,6 +23,8 @@ protected:
     StrictMock<IUserPortMock> userPortMock;
     StrictMock<ITimerPortMock> timerPortMock;
 
+    Expectation expectNonConnected = EXPECT_CALL(userPortMock, showNotConnected());
+
     Application objectUnderTest{PHONE_NUMBER,
                                 loggerMock,
                                 btsPortMock,
@@ -70,6 +72,19 @@ void ApplicationConnectingTestSuite::connect()
 TEST_F(ApplicationConnectingTestSuite, shallConnectOnAttachAccepted)
 {
     connect();
+}
+
+TEST_F(ApplicationConnectingTestSuite, shallFailConnectOnAttachRejected)
+{
+    EXPECT_CALL(timerPortMock, stopTimer());
+    EXPECT_CALL(userPortMock, showNotConnected());
+    objectUnderTest.handleAttachReject();
+}
+
+TEST_F(ApplicationConnectingTestSuite, shallFailConnectOnAttachTimeout)
+{
+    EXPECT_CALL(userPortMock, showNotConnected());
+    objectUnderTest.handleTimeout();
 }
 
 }
